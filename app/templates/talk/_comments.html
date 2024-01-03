@@ -1,0 +1,5 @@
+<ul class="list-group list-group-flush">
+  {% for comment in comments %}{% set index = loop.index %}
+  <li class="list-group-item">{% include 'talk/_comment.html' %}</li>
+  {% endfor %}
+</ul>

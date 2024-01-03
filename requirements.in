@@ -1,0 +1,7 @@
+bootstrap-flask
+flask
+flask-sqlalchemy
+flask-wtf
+flask-login
+flask-moment
+pyjwt

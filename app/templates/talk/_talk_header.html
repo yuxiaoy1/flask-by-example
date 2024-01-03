@@ -1,0 +1,15 @@
+<div>
+  <h2>
+    <a href="{{ url_for('talk.get_talk', id=talk.id) }}">{{ talk.title }}</a>
+  </h2>
+  <h3>{{ talk.description }}</h3>
+  <p>
+    <a href="{{ url_for('user.index', username=talk.author.username) }}"
+      >{{ talk.author.username }}</a
+    >
+    at {% if talk.venue_url %}
+    <a href="{{ talk.venue_url }}">{{ talk.venue }}</a>
+    {% else %} {{ talk.venue }} {% endif %} on {{ moment(talk.date,
+    local=True).format('ll') }}
+  </p>
+</div>

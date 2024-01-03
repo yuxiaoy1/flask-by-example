@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% from 'bootstrap5/pagination.html' import
+render_pager %}{% from 'bootstrap5/form.html' import render_form %} {% block
+content %}
+<div>{% include "talk/_talk_header.html" %}</div>
+<div>
+  {% if talk.video %}
+  <div>{{ talk.video | safe }}</div>
+  {% endif %} {% if talk.slides %}
+  <div>{{ talk.slides | safe }}</div>
+  {% endif %}
+</div>
+{% if comments.items | length %}
+<h3>Comments</h3>
+{% include "talk/_comments.html" %} {{ render_pager(comments) }} {% else %}
+<p>There is nothing here.</p>
+{% endif %}
+<h3>Write a comment</h3>
+{{ render_form(form) }} {% endblock %}

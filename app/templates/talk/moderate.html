@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% from 'bootstrap5/pagination.html' import
+render_pager %} {% block content %}
+<h2>Comment moderation</h2>
+{% if comments.items | length %}
+<ul class="list-group">
+  {% for comment in comments %} {% set talk = comment.talk %}{% set index =
+  loop.index %}
+  <li class="list-group-item">
+    <p>
+      In
+      <a href="{{ url_for('talk.get_talk', id=comment.talk_id) }}"
+        >{{ comment.talk.title }}</a
+      >
+    </p>
+    {% include "talk/_comment.html" %}
+  </li>
+  {% endfor %}
+</ul>
+{{ render_pager(comments) }}{% else %}
+<p>There is nothing here.</p>
+{% endif %} {% endblock %}

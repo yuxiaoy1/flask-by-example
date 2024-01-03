@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Talks{% endblock %}</title>
+    {{ bootstrap.load_css() }}
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="{{ url_for('talk.index') }}">Talks</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('talk.index') }}"
+                >Home</a
+              >
+            </li>
+            {% if current_user.is_authenticated %}
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('user.index', username=current_user.username) }}"
+                >Profile</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('talk.new_talk') }}"
+                >New Talk</a
+              >
+            </li>
+            {% set moderation_count = current_user.for_moderation_count() %}
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('talk.moderate') }}"
+                >Moderate {% if moderation_count %}<span
+                  class="badge text-bg-danger"
+                  >{{ moderation_count }}</span
+                >{% endif %}
+              </a>
+            </li>
+            {% if current_user.is_admin %} {% set admin_moderation_count =
+            current_user.for_moderation_count(True) %}
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('talk.moderate_admin') }}"
+                >Moderate [Admin] {% if admin_moderation_count %}
+                <span class="badge text-bg-danger"
+                  >{{ admin_moderation_count }}</span
+                >
+                {% endif %}
+              </a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('auth.logout') }}"
+                >Logout</a
+              >
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="{{ url_for('auth.login') }}"
+                >Login</a
+              >
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      {% for message in get_flashed_messages(with_categories=True) %}
+      <div
+        class="alert alert-{{ message[0] }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message[1] }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %}{% block content %} {% endblock %}
+    </div>
+    {{ bootstrap.load_js() }} {{ moment.include_moment() }} {% if
+    current_user.is_authenticated %}
+    <script>
+      let token = '{{ current_user.get_api_token() | safe }}'
+
+      async function comments_request(url, method, data = { token }) {
+        await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
+
+      document.addEventListener('click', async event => {
+        if (event.target.id === 'api-approve') {
+          event.preventDefault()
+          let { id } = event.target.dataset
+          try {
+            await comments_request('/api/comments/' + id, 'PUT')
+            document.getElementById('moderate-' + id).style.display = 'none'
+            document.getElementById('approved-' + id).style.display = ''
+          } catch (error) {
+            alert('Error: ' + error)
+          }
+        }
+        if (event.target.id === 'api-delete') {
+          event.preventDefault()
+          let { id } = event.target.dataset
+          try {
+            await comments_request('/api/comments/' + id, 'DELETE')
+            document.getElementById('moderate-' + id).style.display = 'none'
+            document.getElementById('deleted-' + id).style.display = ''
+          } catch (error) {
+            alert('Error: ' + error)
+          }
+        }
+      })
+    </script>
+    {% endif %}
+  </body>
+</html>
